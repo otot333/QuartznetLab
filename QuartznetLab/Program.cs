@@ -16,20 +16,7 @@ namespace QuartznetLab
         {
             Console.WriteLine("Start QuartzNet Test...");
 
-            // DateTime类型
-            DateTime date1 = DateTime.Parse("2018-01-01 11:45:30");
-//DateTimeOffset类型
-            DateTimeOffset date3 = DateBuilder.DateOf(11, 45, 30, 1, 1, 2018);
-//1. DateTime 转换成 DateTimeOffset
-            DateTimeOffset date16 = new DateTimeOffset(date1, TimeSpan.Zero);
-//2. DateTimeOffset 转换成 DateTime
-            //DateTime date17 = Convert.ToDateTime(date3);
-            Console.WriteLine(date1);
-            Console.WriteLine(date3);
-            Console.WriteLine(date16);
-            //Console.WriteLine(date17);
-            
-//            Task.Run(async () => await InitializationScheduler());
+            Task.Run(async () => await InitializationScheduler());
               
 
             Console.WriteLine("Hello World!!!");
