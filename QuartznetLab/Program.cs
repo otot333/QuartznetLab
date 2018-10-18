@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Quartz;
 using Quartz.Impl;
+using Quartz.Impl.Matchers;
 
 namespace QuartznetLab
 {
@@ -27,12 +28,20 @@ namespace QuartznetLab
               
               IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
              
-              var job = JobBuilder.Create<HelloJob>().Build();
+              var job1 = JobBuilder.Create<HelloJob>()
+                  .WithIdentity("Job1")
+                  .StoreDurably(true).Build();
+            
               var dinnerTime = DateBuilder.TodayAt(14, 33, 50);
               var trigger = TriggerBuilder.Create()
-                .WithCronSchedule("30 12 15 ? * THU").Build();
-             
-              await scheduler.ScheduleJob(job, trigger);
+                .StartNow()
+                  .WithSimpleSchedule(x=>x.WithIntervalInSeconds(3).RepeatForever())
+                .ForJob("Job1").Build();
+              await scheduler.AddJob(job1, true);
+              await scheduler.ScheduleJob(trigger);
+              scheduler.ListenerManager.AddJobListener(
+                  new MyJobListener(),
+                  KeyMatcher<JobKey>.KeyEquals(new JobKey("Job1")));
               await scheduler.Start();
               
         }
