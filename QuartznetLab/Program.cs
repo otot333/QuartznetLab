@@ -17,7 +17,6 @@ namespace QuartznetLab
             Console.WriteLine("Start QuartzNet Test...");
 
             Task.Run(async () => await InitializationScheduler());
-              
 
             Console.WriteLine("Hello World!!!");
             Console.ReadLine();
@@ -26,14 +25,12 @@ namespace QuartznetLab
         private static async Task InitializationScheduler()
         {
               
-               IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
-              
+              IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
              
-               var job = JobBuilder.Create<HelloJob>().Build();
-            
-             
-              var trigger = TriggerBuilder.Create().WithSimpleSchedule(
-                  x => x.WithIntervalInSeconds(1).RepeatForever()).Build();
+              var job = JobBuilder.Create<HelloJob>().Build();
+              var dinnerTime = DateBuilder.TodayAt(14, 33, 50);
+              var trigger = TriggerBuilder.Create()
+                .WithCronSchedule("30 12 15 ? * THU").Build();
              
               await scheduler.ScheduleJob(job, trigger);
               await scheduler.Start();
