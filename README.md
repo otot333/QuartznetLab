@@ -50,6 +50,17 @@
         ```csharp
             scheduler.Start();
         ```
+- Job 其他註冊方式
+    - 給予Job名稱
+    - 在scheduler搭配trigger註冊
+    ```csharp
+        var job1 = JobBuilder.Create<HelloJob>().WithIdentity("Job1")
+        var trigger = TriggerBuilder.Create().StartNow().ForJob("Job1").Build();
+        await scheduler.AddJob(job1, true);
+        await scheduler.ScheduleJob(trigger);
+    ```
+
+
 - Trigger週期
     - 每天某一個時間點
         ```csharp
@@ -64,6 +75,49 @@
                 .WithCronSchedule("30 12 15 ? * THU").Build();
         ```
 
+- Listener
+    - 建立Listener
+    ```csharp
+        public class MyJobListener :IJobListener
+        {
+            public Task JobToBeExecuted(IJobExecutionContext context, CancellationToken cancellationToken = new CancellationToken())
+            {
+                //執行前
+                Console.WriteLine("before");
+                return Task.Delay(0);
+            }
+
+            public Task JobExecutionVetoed(IJobExecutionContext context, CancellationToken cancellationToken = new CancellationToken())
+            {
+                
+                return Task.Delay(0);
+            }
+
+            public Task JobWasExecuted(IJobExecutionContext context, JobExecutionException jobException,
+                CancellationToken cancellationToken = new CancellationToken())
+            {
+                //執行前
+                Console.WriteLine("after");
+                return Task.Delay(0);
+            }
+        }
+    ```
+      
+    - 註冊Listener
+        - Listener可以設定Job在執行前後自訂想要的型別
+
+    ```csharp       
+        scheduler.ListenerManager.AddJobListener(
+                  new MyJobListener(), KeyMatcher<JobKey>.KeyEquals(new JobKey("Job1")));
+    ```
+    - 將設定放入DB
+        - 使用MySDL當作範例
+        - 首先建立DB的schema
+            - https://github.com/quartznet/quartznet/blob/master/database/tables/tables_mysql_innodb.sql github上面有很多不同DB的schema
+        -  ![DBSchema](https://github.com/otot333/QuartznetLab/blob/master/Dbschema.png)
+
+    
+
 
 
     
@@ -75,6 +129,7 @@
 
 ---
 ---
+
 ---
 ---
 ---
@@ -154,3 +209,5 @@ scheduler.ScheduleJob(job, trigger);
 5. https://www.quartz-scheduler.net/documentation/quartz-3.x/tutorial/crontrigger.html
 
 6. https://www.freeformatter.com/cron-expression-generator-quartz.html
+7. https://www.cnblogs.com/yaopengfei/p/8577934.html
+8. https://www.cnblogs.com/xingbo/p/5498150.html
