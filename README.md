@@ -110,22 +110,26 @@
         scheduler.ListenerManager.AddJobListener(
                   new MyJobListener(), KeyMatcher<JobKey>.KeyEquals(new JobKey("Job1")));
     ```
+
+    
     - 將設定放入DB
         - 使用MySDL當作範例
         - 首先建立DB的schema
             - https://github.com/quartznet/quartznet/blob/master/database/tables/tables_mysql_innodb.sql github上面有很多不同DB的schema
         -  ![DBSchema](https://github.com/otot333/QuartznetLab/blob/master/Dbschema.png)
+     
 
+```mermaid
+graph LR;
+A(HR面試) ==> B(選擇題紙本考試);
+B == 超過65分 ==> C(技術面試);
+C == 如果是Senior position ==> D(例題作業測驗);
+```
     
 
 
 
-    
 
-    
-    
-
-
 
 ---
 ---

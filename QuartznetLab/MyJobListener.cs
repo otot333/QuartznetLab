@@ -7,11 +7,11 @@ namespace QuartznetLab
 {
     public class MyJobListener :IJobListener
     {
-        public Task JobToBeExecuted(IJobExecutionContext context, CancellationToken cancellationToken = new CancellationToken())
+        public async Task JobToBeExecuted(IJobExecutionContext context, CancellationToken cancellationToken = new CancellationToken())
         {
             //執行前
             Console.WriteLine("before");
-            return Task.Delay(0);
+            
         }
 
         public Task JobExecutionVetoed(IJobExecutionContext context, CancellationToken cancellationToken = new CancellationToken())
