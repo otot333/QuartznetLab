@@ -1,5 +1,6 @@
-# QuartzNet 介紹 #
+#ASP.NET Core Using QuartzNET介紹 #
 ---
+- 目前QuartzNET 3.x 有支援到 .NET Standard 2.0
 - 三大元件
     - Scheduler
         - 排成器
@@ -104,100 +105,90 @@
     ```
       
     - 註冊Listener
-        - Listener可以設定Job在執行前後自訂想要的型別
+        - Listener可以設定Job在執行前後自訂想要的行為
 
     ```csharp       
         scheduler.ListenerManager.AddJobListener(
                   new MyJobListener(), KeyMatcher<JobKey>.KeyEquals(new JobKey("Job1")));
-    ```
+    ```     
+     - 搭配API Pause Job 跟 Resume Job
+        - 這邊示範三個方法, Get All Jobs, Pause Job, Resume Job
+       ```csharp
+        // GET
+        [HttpGet]
+        public async Task<IReadOnlyCollection<JobKey>> Get()
+        {
+            IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
+            
+            JobDetailImpl jobDetail;
+            var allJobDetails = new List<JobDetailImpl>();
+            
+            var allJobKeys = await scheduler.GetJobKeys(GroupMatcher<JobKey>.AnyGroup());
+            
+            return allJobKeys;
+        }
 
-    
-    - 將設定放入DB
-        - 使用MySDL當作範例
-        - 首先建立DB的schema
-            - https://github.com/quartznet/quartznet/blob/master/database/tables/tables_mysql_innodb.sql github上面有很多不同DB的schema
-        -  ![DBSchema](https://github.com/otot333/QuartznetLab/blob/master/Dbschema.png)
-     
+        [Route("PauseJob")]
+        [HttpPost]
+        public async Task<string> PauseJob(string jobName)
+        {
+            IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
+            var jobKey = new JobKey(jobName);
+            await scheduler.PauseJob(jobKey);
+            return $"{jobName} already Paused.";
+        }
 
-```mermaid
-graph LR;
-A(HR面試) ==> B(選擇題紙本考試);
-B == 超過65分 ==> C(技術面試);
-C == 如果是Senior position ==> D(例題作業測驗);
-```
-    
-
-
-
-
-
----
----
-
----
----
----
-*abc*
-**abc**
-***abc***
-####
-----
-[GoToGoogle](http://www.google.com.tw, "我是谷歌")
-[here][3]
-[3]: http://www.google.com.tw GotoGoogle again
-
-[here][3]
-然后在别的地方定义 3 这个详细链接信息，
-[3]: http://www.izhangbo.cn "聚牛团队"
-
-<kbd>Ctrl+A</kbd> and <kbd>Ctrl+B</kbd>
-
-Use the `printf()` function
-
-``There is a literal backtick (`) here.针对在代码区段内插入反引号的情况`` 
-
-强调：
-*斜体强调*
-**粗体强调**
-
- 图片
-![Alt text](http://www.izhangbo.cn/wp-content/themes/minty/img/logo.png "Optional title")
-
-使用 icon 图标文字
-<i class="icon-cog"></i>
-
-Item         | Value
------------- | ---
-Computer     | $1600
-Phone        | $12
-Pipe         | $1
-
-- 無需列表１
-- 無序列表２
-
-1. 使用列表
-2. 使用列表
-3. 使用列表
-4. 使用列表
-5. 使用列表
-
-> 在非洲每六十秒
-
-我是第一段
-
-我是第二段  
-
-我是第三行
-
-下午茶
-* 雞排
-+ 珍珠奶茶
-- 甜不辣
+        [Route("ResumeJob")]
+        [HttpPost]
+        public async Task<string> ResumeJob(string jobName)
+        {
+            IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
+            var jobKey = new JobKey(jobName);
+            await scheduler.ResumeJob(jobKey);
+            return $"{jobName} already Resume.";
+        }
+        ```
 
 
-下午茶2
+- 將設定儲存到資料庫(MY-SQL)做持久化
+    - install nuget package MySql.data
+    - 建立資料庫schema (參考GitHub https://github.com/quartznet/quartznet/blob/master/database/tables/tables_mysql_innodb.sql)
+  
+    ![image](https://github.com/otot333/QuartznetLab/blob/master/Dbschema.png)
 
-scheduler.ScheduleJob(job, trigger);
+
+    - 參數設定
+        ```charp
+            //1.首先创建一个作业调度池
+            var properties = new NameValueCollection();
+            //存储类型
+            properties["quartz.jobStore.type"] = "Quartz.Impl.AdoJobStore.JobStoreTX, Quartz";
+            //表明前缀
+            properties["quartz.jobStore.tablePrefix"] = "QRTZ_";
+            //驱动类型
+            properties["quartz.jobStore.driverDelegateType"] = "Quartz.Impl.AdoJobStore.MySQLDelegate, Quartz";
+            //数据源名称
+            properties["quartz.jobStore.dataSource"] = "myDS";
+            //连接字符串
+            properties["quartz.dataSource.myDS.connectionString"] = "Server=localhost; Port=3306; Database=QuartzNetMYSQL;Uid=root;Pwd=pass.123";            
+            //版本
+            properties["quartz.dataSource.myDS.provider"] = "MySql";
+            properties["quartz.serializer.type"] = "json";
+            var schedulerFactory = new StdSchedulerFactory(properties);
+            var scheduler = await schedulerFactory.GetScheduler();
+        ```
+    - 將程式跑起來可以看到DB 相關的table 已經有資料
+
+
+    ![image](https://github.com/otot333/QuartznetLab/blob/master/Dbschema.png)
+- QuarzNET fail over 的功能
+    - 參數設定
+        ```
+                properties["quartz.jobStore.clustered"] = "true"; //開啟clustered
+                properties["quartz.scheduler.instanceId"] = "1"; //每一台排成器需要設定不同的Id
+                properties["quartz.scheduler.instanceName"] = "IAMQ"; //每一台排程器需使用相同的名字
+        ```
+    - 預設7.5秒會自動fail over
 
 - 參考來源
 
