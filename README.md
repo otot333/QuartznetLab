@@ -154,7 +154,7 @@
     - install nuget package MySql.data
     - 建立資料庫schema (參考GitHub https://github.com/quartznet/quartznet/blob/master/database/tables/tables_mysql_innodb.sql)
   
-    ![image](https://github.com/otot333/QuartznetLab/blob/master/Dbschema.png)
+    ![image](Dbschema.png)
 
 
     - 參數設定
