@@ -180,7 +180,7 @@
     - 將程式跑起來可以看到DB 相關的table 已經有資料
 
 
-    ![image](https://github.com/otot333/QuartznetLab/blob/master/Dbschema.png)
+    ![image](DB-info.png)
 - QuarzNET fail over 的功能
     - 參數設定
         ```
